@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "github.com/sahilrana27582/go-grpc-graphql-microservice/user-service/grpc/pb";
+
+service UserService {
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUser (GetUserRequest) returns (GetUserResponse);
+}
+
+message CreateUserRequest {
+  string username = 1;
+  string password = 2;
+  string role = 3;
+}
+
+message CreateUserResponse {
+  string id = 1;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  string id = 1;
+  string username = 2;
+  string role = 3;
+}
