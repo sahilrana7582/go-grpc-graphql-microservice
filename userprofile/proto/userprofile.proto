@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package userprofile;
+
+option go_package = "github.com/sahilrana7582/go-grpc-graphql-microservice/userprofile/grpc/pb";
+
+import "google/protobuf/timestamp.proto";
+
+message UserProfile {
+  int64 id = 1;
+  string username = 2;
+  string email = 3;
+  string full_name = 4;
+  string bio = 5;
+  repeated string interests = 6;
+  Address address = 7;
+  repeated PhoneNumber phones = 8;
+  bool is_active = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+  string state = 3;
+  string country = 4;
+  string postal_code = 5;
+}
+
+message PhoneNumber {
+  enum PhoneType {
+    MOBILE = 0;
+    HOME = 1;
+    WORK = 2;
+  }
+  PhoneType type = 1;
+  string number = 2;
+}
+
+message GetUserProfileRequest {
+  int64 id = 1;
+}
+
+message GetUserProfileResponse {
+  UserProfile profile = 1;
+}
+
+message SaveUserProfileRequest {
+  UserProfile profile = 1;
+}
+
+message SaveUserProfileResponse {
+  UserProfile profile = 1;
+}
+
+service UserProfileService {
+  rpc GetUserProfile(GetUserProfileRequest) returns (GetUserProfileResponse);
+
+  rpc SaveUserProfile(SaveUserProfileRequest) returns (SaveUserProfileResponse);
+}
