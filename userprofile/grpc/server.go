@@ -2,23 +2,39 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	pb "github/sahilrana7582/go-grpc-graphql-microservice/userprofile/proto"
 	"log"
 	"net"
+	"sync"
 	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	code "google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Server struct {
 	pb.UnimplementedUserProfileServiceServer
+	mu        sync.Mutex
+	callCount map[int32]int32
 }
 
 func (s *Server) GetUserProfile(ctx context.Context, req *pb.GetUserProfileRequest) (*pb.GetUserProfileResponse, error) {
 	log.Printf("GetUserProfile called with ID: %d", req.Id)
 
-	// Dummy hardcoded data
+	s.mu.Lock()
+	s.callCount[int32(req.Id)]++
+	count := s.callCount[int32(req.Id)]
+	s.mu.Unlock()
+
+	if count < 5 {
+		fmt.Println("---------Reuest Failed Retrying---------------")
+		return nil, status.Error(code.ResourceExhausted, "Resources Are Full At A Moment")
+	}
+
 	profile := &pb.UserProfile{
 		Id:        req.Id,
 		Username:  "john_doe",
@@ -43,6 +59,7 @@ func (s *Server) GetUserProfile(ctx context.Context, req *pb.GetUserProfileReque
 	}
 
 	return &pb.GetUserProfileResponse{Profile: profile}, nil
+
 }
 
 func (s *Server) SaveUserProfile(ctx context.Context, req *pb.SaveUserProfileRequest) (*pb.SaveUserProfileResponse, error) {
@@ -66,7 +83,9 @@ func StartGRPCServer(port string) {
 
 	grpcServer := grpc.NewServer()
 
-	pb.RegisterUserProfileServiceServer(grpcServer, &Server{})
+	pb.RegisterUserProfileServiceServer(grpcServer, &Server{
+		callCount: make(map[int32]int32),
+	})
 
 	log.Printf("Starting gRPC UserProfile service on port %s", port)
 	if err := grpcServer.Serve(lis); err != nil {

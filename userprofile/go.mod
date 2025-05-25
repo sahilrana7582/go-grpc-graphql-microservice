@@ -3,6 +3,7 @@ module github/sahilrana7582/go-grpc-graphql-microservice/userprofile
 go 1.23.3
 
 require (
+	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	golang.org/x/net v0.35.0 // indirect
